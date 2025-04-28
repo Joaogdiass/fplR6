@@ -1,28 +1,19 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import PlayerTable from './components/PlayerTable';
+import RankingTable from './components/RankingTable';
 import { players } from './data/players';
-import { motion } from 'framer-motion';
+import Layout from './components/Layout.tsx';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-6">
-      <motion.h1
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-        className="text-4xl font-extrabold text-white mb-8 tracking-wide"
-      >
-        Player Statistics
-      </motion.h1>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.8 }}
-        className="w-full max-w-7xl"
-      >
-        <PlayerTable players={players} />
-      </motion.div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<PlayerTable players={players} />} />
+          <Route path="ranking" element={<RankingTable players={players} />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
