@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PlayerStats } from '../data/players';
+import { PlayerStats } from '@data/players';
 import { motion } from 'framer-motion';
 
 interface RankingTableProps {
@@ -12,10 +12,17 @@ const RankingTable = ({ players }: RankingTableProps) => {
   >('rankingPoints');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  // 🧠 Função para calcular a pontuação de Assists com diminuição progressiva
+  const handleSort = (column: keyof PlayerStats | 'kd' | 'kda' | 'winRate' | 'saldo' | 'matches' | 'roundsWon' | 'roundsLost' | 'rankingPoints') => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+  };
+
   const calculateAssistsPoints = (assists: number) => {
     let points = 0;
-
     for (let i = 1; i <= assists; i++) {
       if (i <= 5) {
         points += 0.5;
@@ -25,26 +32,24 @@ const RankingTable = ({ players }: RankingTableProps) => {
         points += 0.1;
       }
     }
-
     return points;
   };
 
-  // 🚀 Função principal para calcular Ranking Points
   const calculateRankingPoints = (player: PlayerStats) => {
     const kd = player.deaths === 0 ? player.kills : player.kills / player.deaths;
     const winRate = (player.victory / (player.victory + player.defeat)) * 100;
     const assistsPoints = calculateAssistsPoints(player.assists);
 
     return (
-        (player.kills * 2) +
-        (assistsPoints) +
-        (player.victory * 5) +
-        (kd * 10) +
-        (winRate * 0.5) -
-        (player.deaths * 2) -
-        (player.defeat * 5)
-      );
-    };
+      (player.kills * 2) +
+      (assistsPoints) +
+      (player.victory * 7) +
+      (kd * 10) +
+      (winRate * 0.5) -
+      (player.deaths * 2) -
+      (player.defeat * 7)
+    );
+  };
 
   const getSortedPlayers = () => {
     const playersWithPoints = players.map(player => ({
@@ -68,11 +73,7 @@ const RankingTable = ({ players }: RankingTableProps) => {
       const valueA = getValue(a);
       const valueB = getValue(b);
 
-      if (sortDirection === 'asc') {
-        return Number(valueA) - Number(valueB);
-      } else {
-        return Number(valueB) - Number(valueA);
-      }
+      return sortDirection === 'asc' ? Number(valueA) - Number(valueB) : Number(valueB) - Number(valueA);
     });
   };
 
@@ -90,7 +91,7 @@ const RankingTable = ({ players }: RankingTableProps) => {
           <table className="w-full table-auto border-collapse text-gray-200">
             <thead className="bg-gray-800 sticky top-0 text-xs md:text-sm">
               <tr>
-                {[ 
+                {[
                   { label: 'Player', key: 'player' },
                   { label: 'Ranking Points', key: 'rankingPoints' },
                   { label: 'Kills', key: 'kills' },
@@ -98,6 +99,7 @@ const RankingTable = ({ players }: RankingTableProps) => {
                   { label: 'Deaths', key: 'deaths' },
                   { label: 'Victory', key: 'victory' },
                   { label: 'Defeat', key: 'defeat' },
+                  { label: 'K/D', key: 'kd' },
                   { label: 'Win Rate (%)', key: 'winRate' },
                   { label: 'Rounds Won', key: 'roundsWon' },
                   { label: 'Rounds Lost', key: 'roundsLost' },
@@ -106,7 +108,7 @@ const RankingTable = ({ players }: RankingTableProps) => {
                   <th
                     key={key}
                     className="px-4 py-3 font-bold text-gray-300 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                    onClick={() => handleSort(key as any)}
+                    onClick={() => handleSort(key as keyof PlayerStats | 'kd' | 'kda' | 'winRate' | 'saldo' | 'matches' | 'roundsWon' | 'roundsLost' | 'rankingPoints')}
                   >
                     {label} {sortColumn === key ? (sortDirection === 'asc' ? '▲' : '▼') : ''}
                   </th>
@@ -114,25 +116,48 @@ const RankingTable = ({ players }: RankingTableProps) => {
               </tr>
             </thead>
             <tbody className="bg-gray-900 divide-y divide-gray-700">
-              {sortedPlayers.map((player) => {
+              {sortedPlayers.map((player, index) => {
                 const kd = player.deaths === 0 ? player.kills : player.kills / player.deaths;
                 const winRate = (player.victory / (player.victory + player.defeat)) * 100;
                 const saldo = player.roundsWon - player.roundsLost;
                 const rankingPoints = player.rankingPoints ?? 0;
+
+                // Estilos de nome para Top 1 / 2 / 3
+                let nameColor = 'text-white';
+                if (index === 0) nameColor = 'text-yellow-400';
+                else if (index === 1) nameColor = 'text-gray-300';
+                else if (index === 2) nameColor = 'text-orange-400';
 
                 return (
                   <tr
                     key={player.player}
                     className="hover:bg-gray-800 transition-all duration-200 text-center text-xs md:text-sm"
                   >
-                    <td className="px-2 py-2 md:px-4 font-semibold">{player.player}</td>
+                    <td className="px-2 py-2 md:px-4 font-semibold">
+                      <span className={nameColor}>{player.player}</span>
+                    </td>
                     <td className="px-2 py-2 md:px-4">{rankingPoints.toFixed(2)}</td>
                     <td className="px-2 py-2 md:px-4">{player.kills}</td>
                     <td className="px-2 py-2 md:px-4">{player.assists}</td>
                     <td className="px-2 py-2 md:px-4">{player.deaths}</td>
                     <td className="px-2 py-2 md:px-4">{player.victory}</td>
                     <td className="px-2 py-2 md:px-4">{player.defeat}</td>
-                    <td className="px-2 py-2 md:px-4">{winRate.toFixed(2)}%</td>
+                    <td className="px-2 py-2 md:px-4">
+                      <span className={
+                          kd < 1.0 
+                          ? 'text-red-400' 
+                          : kd === 1.0 
+                          ? 'text-white' 
+                          : 'text-green-400'
+                        }>
+                          {kd.toFixed(2)}
+                        </span>
+                                            </td>
+                    <td className="px-2 py-2 md:px-4">
+                      <span className={winRate >= 50.01 ? 'text-green-400' : winRate === 50.00 ? 'text-white' : 'text-red-400'}>
+                        {winRate.toFixed(2)}%
+                      </span>
+                    </td>
                     <td className="px-2 py-2 md:px-4">{player.roundsWon}</td>
                     <td className="px-2 py-2 md:px-4">{player.roundsLost}</td>
                     <td className="px-2 py-2 md:px-4">{saldo}</td>

@@ -78,8 +78,8 @@ const PlayerTable = ({ players }: PlayerTableProps) => {
                   <th
                     key={key}
                     className="px-4 py-3 font-bold text-gray-300 uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
-                    onClick={() => handleSort(key as any)}
-                  >
+                    onClick={() => handleSort(key as keyof PlayerStats | 'kd' | 'kda' | 'winRate' | 'saldo' | 'matches')}
+                    >
                     {label} {sortColumn === key ? (sortDirection === 'asc' ? '▲' : '▼') : ''}
                   </th>
                 ))}
