@@ -64,7 +64,6 @@ const PlayerTable = ({ players }: PlayerTableProps) => {
                   { label: 'Matches', key: 'matches' },
                   { label: 'Victory', key: 'victory' },
                   { label: 'Defeat', key: 'defeat' },
-                  { label: 'Score', key: 'score' },
                   { label: 'Kills', key: 'kills' },
                   { label: 'Assists', key: 'assists' },
                   { label: 'Deaths', key: 'deaths' },
@@ -102,7 +101,6 @@ const PlayerTable = ({ players }: PlayerTableProps) => {
         <td className="px-2 py-2 md:px-4">{matches}</td>
         <td className="px-2 py-2 md:px-4">{player.victory}</td>
         <td className="px-2 py-2 md:px-4">{player.defeat}</td>
-        <td className="px-2 py-2 md:px-4">{player.score.toLocaleString('en-US')}</td>
         <td className="px-2 py-2 md:px-4">{player.kills}</td>
         <td className="px-2 py-2 md:px-4">{player.assists}</td>
         <td className="px-2 py-2 md:px-4">{player.deaths}</td>
